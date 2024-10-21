@@ -4,7 +4,7 @@ import { CreateToken } from "@/functions/JWT";
 import { User } from "@/models/Users";
 import { NextResponse } from "next/server";
 
-export const POST = async (req: NextResponse) => {
+export const POST = async (req:any) => {
   try {
     const body: { email: string; password: string } = await req.json();
 

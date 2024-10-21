@@ -78,4 +78,4 @@ const UserSchema: Schema = new Schema(
   }
 );
 
-export const User = mongoose.models.User || mongoose.model<any>("User", UserSchema) 
+export const User = mongoose.models.User || mongoose.model<UserType>("User", UserSchema) 
