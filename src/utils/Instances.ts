@@ -31,7 +31,7 @@ AxiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.data.auth === "invalid") {
-      localStorage.removeItem(USER_TOKEN);
+      // localStorage.removeItem(USER_TOKEN);
       window.location.href = "/signin";
     }
 

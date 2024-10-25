@@ -1,9 +1,10 @@
 "use client";
 
+import { LoadingContext } from "@/app/_contexts/LoadingContexts";
 import { AxiosInstance, USER_TOKEN } from "@/utils/Instances";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { redirect, useRouter } from "next/navigation";
+import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { LiaEye } from "react-icons/lia";
 import { PiEyeClosed } from "react-icons/pi";
@@ -45,6 +46,7 @@ type FormFields = z.infer<typeof schema>;
 
 export default function SignUp() {
   const router = useRouter();
+  const { SetLoading } = useContext(LoadingContext);
   const {
     register,
     handleSubmit,
@@ -57,107 +59,113 @@ export default function SignUp() {
   };
 
   return (
-    <div className="w-full h-full flex items-center justify-center bg-gray-900">
-      <div className="w-full max-w-md bg-gray-800 rounded-lg p-6 space-y-4">
-        <h1 className="text-lg font-medium text-white text-center">STELLAR</h1>
-        <p className="text-gray-400 text-center">Create your account</p>
-
-        <form
-          noValidate
-          className="space-y-3"
-          onSubmit={handleSubmit(async (data: any) => {
-            try {
-              const response = await AxiosInstance.post("/api/auth/signup", {
-                name: data.name,
-                email: data.email,
-                password: data.password,
-                phone: data.phone,
-              });
-              console.log(response?.data);
-              toast.success(response?.data?.message);
-              localStorage.setItem(USER_TOKEN, response?.data?.token);
-              router.push(`/signin`);
-            } catch (error: any) {
-              console.log(error?.response?.data?.message);
-              toast.error(error?.response?.data?.message);
-            }
-          })}
-        >
-          <div>
-            <label id="name" className="block text-gray-400">
-              Name
+    <div className="w-full h-full flex justify-center items-center">
+      <form
+        className="w-full flex items-center justify-center"
+        noValidate
+        onSubmit={handleSubmit(async (data: any) => {
+          try {
+            SetLoading(true);
+            const response = await AxiosInstance.post("/api/auth/signup", {
+              name: data.name,
+              email: data.email,
+              password: data.password,
+              phone: data.phone,
+            });
+            console.log(response?.data);
+            toast.success(response?.data?.message);
+            localStorage.setItem(USER_TOKEN, response?.data?.token);
+            router.push(`/stellar-intel/account`);
+          } catch (error: any) {
+            console.log(error?.response?.data?.message);
+            toast.error(error?.response?.data?.message);
+          } finally {
+            SetLoading(false);
+          }
+        })}
+      >
+        <div className="w-full min-w-sm max-w-lg flex flex-col items-center justify-center gap-4">
+          <h1 className="text-center text-4xl font-medium">Sign Up</h1>
+          <div className="form-control w-full">
+            <label id="name">
+              Your&nbsp;Name
               <input
-              autoComplete="name"
+                id="name"
                 {...register("name")}
                 type="text"
-                placeholder="Stellarian"
-                className="input input-bordered w-full bg-gray-700 text-white"
+                autoComplete="name"
+                placeholder="Enter Name"
+                className="input w-full input-bordered rounded-none"
               />
             </label>
-            <p className="text-red-500 text-md">{errors.name?.message}</p>
+            <p className="text-red-500 text-md">{errors?.name?.message}</p>
           </div>
-          <div>
-            <label id="email" className="block text-gray-400">
-              E-mail
+
+          <div className="w-full form-control">
+            <label id="name">
+              Email
               <input
-              autoComplete="email"
                 {...register("email")}
-                type="email"
-                placeholder="example@outlook.in"
-                className="input input-bordered w-full bg-gray-700 text-white"
+                type="text"
+                placeholder="Enter email"
+                autoComplete="email"
+                className="input w-full input-bordered rounded-none"
               />
             </label>
             <p className="text-red-500 text-md">{errors.email?.message}</p>
           </div>
 
-          <div>
-            <label id="password" className="block text-gray-400">
+          <div className="form-control w-full">
+            <label htmlFor="password">
               Password
-              <div className="flex flex-row items-center justify-between">
-                <input
+            </label>
+            <label className="input input-bordered flex items-center gap-2 w-full rounded-none">
+              <input
+                {...register("password")}
+                id="password"
                 autoComplete="new-password"
-                  {...register("password")}
-                  type={value ? "text" : "password"}
-                  placeholder="6+ strong character"
-                  className="input input-bordered w-full bg-gray-700 text-white"
-                />
-                <h1
-                  onClick={toggleValue}
-                  className={`btn btn-circle btn-ghost`}
-                >
-                  {!value ? <PiEyeClosed size={20} /> : <LiaEye size={20} />}
-                </h1>
-              </div>
+                type={value ? "text" : "password"}
+                className="grow"
+                placeholder="Enter Password"
+              />
+              <p className="cursor-pointer" onClick={toggleValue}>
+                {!value ? <PiEyeClosed size={23} /> : <LiaEye size={23} />}
+              </p>
             </label>
             <p className="text-red-500 text-md">{errors.password?.message}</p>
           </div>
 
-          <div>
-            <label id="phone" className="block text-gray-400">
+          <div className="w-full form-control">
+            <label id="phone">
               Phone
               <input
-              autoComplete="tel"
+                id="phone"
                 {...register("phone")}
-                type="number"
-                placeholder="10-digits"
-                className="input input-bordered w-full bg-gray-700 text-white"
+                type="text"
+                placeholder="Enter phone"
+                autoComplete="tel"
+                className="input w-full input-bordered rounded-none"
               />
             </label>
             <p className="text-red-500 text-md">{errors.phone?.message}</p>
           </div>
-
-          <button className="btn btn-primary w-full">Sign Up</button>
-        </form>
-        <div className="flex items-center justify-center text-gray-400">
-          <h1>Already have account?</h1>
           <button
-            onClick={() => router.push(`/signin`)}
-            className="btn btn-sm btn-link no-underline text-white hover:underline"
+            type="submit"
+            className="lg:w-full w-5/6 text-lg rounded-full p-2 shadow-lg bg-black text-white "
           >
-            Sign In
+            Sign Up
           </button>
+          <div className="w-full flex justify-center items-center gap-2">
+            <h1>Already have Account ?</h1>
+            <p
+              className="btn btn-sm btn-link no-underline hover:underlin"
+              onClick={() => router.push(`/signin`)}
+            >
+              Sign&nbsp;In
+            </p>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

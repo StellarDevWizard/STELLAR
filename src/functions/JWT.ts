@@ -1,4 +1,5 @@
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
+import { NextResponse } from "next/server";
 
 export async function VerifyToken(token: string) {
   try {
@@ -24,7 +25,10 @@ export async function CreateToken(payload: object, expiry: string) {
     );
 
     return token;
-  } catch (error) {
-    return error;
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message, message: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

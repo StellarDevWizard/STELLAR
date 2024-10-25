@@ -1,0 +1,66 @@
+import { VerifyToken } from "@/functions/JWT";
+import { NextApiRequest, NextApiResponse } from "next";
+
+export const GET = async (req: NextApiRequest, res: NextApiResponse) => {
+    try {
+
+        const authHeader = req.headers.authorization;
+    
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+          return res.status(401).json({
+            message: "Authorization header is missing or invalid",
+            auth: "invalid",
+          });
+        }
+    
+        const token = authHeader.split(" ")[1];
+        if (token) {
+          try {
+            const decoded: any = await VerifyToken(token);
+    
+            if (decoded === "jwt malformed" || decoded === "invalid token") {
+              return res.status(401).json({
+                message: "Token malformed",
+                auth: "invalid",
+              });
+            }
+    
+            // Set the user ID in the request body or handle it as needed
+            req.body.id = decoded.id;
+    
+            // Continue processing the request or send a success response
+            return res.status(200).json({
+              message: "Token verified successfully",
+              id: decoded.id, // Include any other information you want to return
+            });
+          } catch (error: any) {
+            console.error(error);
+            if (error.message === "jwt expired") {
+              return res.status(401).json({
+                message: "Token expired",
+                expiredAt: error.expiredAt,
+                auth: "invalid",
+              });
+            } else {
+              return res.status(401).json({
+                message: "Failed to authenticate token",
+                auth: "invalid",
+              });
+            }
+          }
+
+        } else {
+          return res.status(401).json({
+            message: "Failed to authenticate token",
+            auth: "invalid",
+          });
+        }
+
+        
+
+
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+      }
+}

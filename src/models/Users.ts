@@ -2,6 +2,7 @@ import mongoose, { Schema } from "mongoose";
 
 interface UserType {
   name: string;
+  username: string;
   email: string;
   password: string;
   phone: number;
@@ -57,6 +58,12 @@ const UserSchema: Schema = new Schema(
         message: "Phone number must be exactly 10 digits",
       },
     },
+    username: {
+      type: String,
+      // reqired: true,
+      unique: true,
+      // message: "User Name is required",
+    },
     // reset_email_count: { type: Number, default: 0 },
     // reset_password_count: { type: Number, default: 0 },
     // verifiedAt: { type: Date },
@@ -78,4 +85,5 @@ const UserSchema: Schema = new Schema(
   }
 );
 
-export const User = mongoose.models.User || mongoose.model<UserType>("User", UserSchema) 
+export const User =
+  mongoose.models.User || mongoose.model<UserType>("User", UserSchema);

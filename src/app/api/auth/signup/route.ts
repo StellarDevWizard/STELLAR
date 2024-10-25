@@ -42,14 +42,14 @@ export const POST = async (req: NextRequest) => {
     });
 
     const token = await CreateToken(
-      {id: isEmailExists?._id?.toString()},
+      {id: NewUser?._id?.toString()},
       "7d"
     )
 
     if (typeof token === 'string') {
-      const encrypted_token = encrypt(token);
+     
       return NextResponse.json(
-        { message: "Sign Up Successful", token: encrypted_token },
+        { message: "Sign Up Successful", token },
         { status: 200 }
       );
     } else {

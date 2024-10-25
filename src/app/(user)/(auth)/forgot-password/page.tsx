@@ -4,8 +4,8 @@ import Link from "next/link";
 
 export default function ForgotPassword() {
   return (
-    <div className="w-full h-full flex items-center justify-center bg-gray-900">
-      <div className="w-full max-w-md bg-gray-800 rounded-lg p-6 space-y-4">
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="w-full max-w-md bg-gray-900 rounded-lg p-6 space-y-4">
         {/* <h1 className="text-lg font-medium text-white text-center">STELLAR</h1> */}
         <p className="text-gray-400 text-center font-semibold">Rest Password</p>
 

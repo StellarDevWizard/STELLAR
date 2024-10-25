@@ -4,12 +4,12 @@ import { CreateToken } from "@/functions/JWT";
 import { User } from "@/models/Users";
 import { NextResponse } from "next/server";
 
-export const POST = async (req: any) => {
+export const POST = async (req:any) => {
   try {
     const body: { email: string; password: string } = await req.json();
 
     const { email, password } = body;
-    console.log(encrypt(password));
+    console.log(encrypt(password))    
     await ConnectWithMongoDB();
     const isEmailExists = await User.findOne({
       email,
@@ -27,12 +27,17 @@ export const POST = async (req: any) => {
 
     console.log(body);
 
-    const token = await CreateToken({ id: isEmailExists?._id }, "7d");
-
-    return NextResponse.json(
-      { message: "Sign In Successful", token },
-      { status: 200 }
+    const token = await CreateToken(
+      { id: isEmailExists?._id },
+      "7d"
     );
+
+
+      return NextResponse.json(
+        { message: "Sign In Successful", token },
+        { status: 200 }
+      );
+
   } catch (error: any) {
     console.log(error);
     return NextResponse.json({

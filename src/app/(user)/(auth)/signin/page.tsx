@@ -1,9 +1,11 @@
 "use client";
 
+import { LoadingContext } from "@/app/_contexts/LoadingContexts";
 import { AxiosInstance, USER_TOKEN } from "@/utils/Instances";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { LiaEye } from "react-icons/lia";
 import { PiEyeClosed } from "react-icons/pi";
@@ -40,97 +42,97 @@ export default function SignIn() {
   } = useForm<FormFields>({ resolver: zodResolver(schema) });
 
   const router = useRouter();
-
+  const { SetLoading } = useContext(LoadingContext);
   const [value, SetValue] = useState<boolean>(false);
   const toggleValue = () => {
     SetValue(!value);
   };
 
   return (
-    <div className="w-full h-full flex items-center justify-center bg-gray-900">
-      <div className="w-full max-w-md bg-gray-800 rounded-lg p-6 space-y-4">
-        <h1 className="text-lg font-medium text-white text-center">STELLAR</h1>
-        <p className="text-gray-400 text-center">Sign in with Stellar</p>
-
-        <form
-          noValidate
-          className="space-y-3"
-          onSubmit={handleSubmit(async (data: any) => {
-            try {
-              const response = await AxiosInstance.post(
-                "/api/auth/signin",
-                data
-              );
-              // localStorage.setItem(USER_TOKEN,response?.data?.token)
-              localStorage.setItem(USER_TOKEN, response?.data?.token);
-              console.log(response?.data);
-              toast.success(response?.data?.message);
-              // router.push(`/home`);
-            } catch (error: any) {
-              console.log(error);
-              toast.error(error?.response?.data?.message);
-            }
-          })}
-        >
-          <div>
-            <label id="email" className="block text-gray-400">
-              E-mail
-              <input
+    <div className="w-full h-full flex justify-center items-center">
+    <form
+      noValidate
+      className="w-full flex items-center justify-center"
+      onSubmit={handleSubmit(async (data: any) => {
+        try {
+          SetLoading(true);
+          const response = await AxiosInstance.post("/api/auth/signin", {
+            email: data.email,
+            password: data.password,
+          });
+          localStorage.setItem(USER_TOKEN, response?.data?.token);
+          console.log(data);
+          toast.success(response?.data?.message);
+          router.push(`/stellar-intel/account`);
+        } catch (error: any) {
+          console.log(error?.response?.data?.message);
+          toast.error(error?.response?.data?.message);
+        } finally {
+          SetLoading(false);
+        }
+      })}
+    >
+      <div className="w-full min-w-sm max-w-lg flex flex-col items-center justify-center gap-4">
+      <h1 className="text-center text-4xl font-medium">Sign&nbsp;In</h1>
+        <div className="w-full form-control">
+          <label id="name">
+            Email
+            <input
+              {...register("email")}
+              type="text"
+              placeholder="Enter email"
               autoComplete="email"
-                {...register("email")}
-                type="email"
-                placeholder="example@outlook.in"
-                className="input input-bordered w-full bg-gray-700 text-white"
-              />
-            </label>
-            <p className="text-red-500 text-md">{errors.email?.message}</p>
-          </div>
+              className="input w-full input-bordered rounded-none"
+            />
+          </label>
+          <p className="text-red-500 text-md">{errors.email?.message}</p>
+        </div>
 
-          <div>
-            <label id="password" className="block text-gray-400">
-              Password
-              <div className="flex flex-row items-center justify-between">
-                <input
-                  {...register("password")}
-                  type={value ? "text" : "password"}
-                  placeholder="6+ strong character"
-                  className="input input-bordered w-full bg-gray-700 text-white"
-                />
-                <h1
-                  onClick={toggleValue}
-                  className={`btn btn-circle btn-ghost`}
-                >
-                  {!value ? <PiEyeClosed size={20} /> : <LiaEye size={20} />}
-                </h1>
-              </div>
-            </label>
-            <p className="text-red-500 text-md">{errors.password?.message}</p>
-          </div>
+        <div className="form-control w-full">
+          <label htmlFor="password">Password</label>
+          <label className="input input-bordered flex items-center gap-2 w-full rounded-none">
+            <input
+              {...register("password")}
+              id="password"
+              autoComplete="new-password"
+              type={value ? "text" : "password"}
+              className="grow"
+              placeholder="Enter Password"
+            />
+            <p className="cursor-pointer" onClick={toggleValue}>
+              {!value ? <PiEyeClosed size={25} /> : <LiaEye size={25} />}
+            </p>
+          </label>
+          <p className="text-red-500 text-md">{errors.password?.message}</p>
+        </div>
 
-          <div className="flex justify-between items-center text-gray-400">
-            <a
-              href="#"
-              onClick={() => router.push(`/forgot-password`)}
-              className="text-sm hover:underline"
-            >
-              Forgot password?
-            </a>
-          </div>
-
-          <button type="submit" className="btn btn-primary w-full">
-            Sign Up
-          </button>
-        </form>
-        <div className="flex items-center justify-center text-gray-400">
-          <h1>Don`t have account?</h1>
-          <button
-            onClick={() => router.push(`/signup`)}
-            className="btn btn-sm btn-link no-underline text-white hover:underline"
+        <div className="w-full">
+          <a
+            href="#"
+            onClick={() => router.push(`/forgot-password`)}
+            className="text-sm hover:underline"
           >
-            Sign Up
-          </button>
+            Forgot password?
+          </a>
+        </div>
+
+        <button
+          type="submit"
+          className="lg:w-full w-5/6 text-lg rounded-full p-2 shadow-lg bg-black text-white "
+        >
+          Sign In
+        </button>
+        <div className="w-full flex justify-center items-center gap-2">
+          <h1>Don`t have Account ?</h1>
+          <p
+            className="btn btn-sm btn-link no-underline hover:underlin"
+            onClick={() => router.push(`/signup`)}
+          >
+            Sign&nbsp;Up
+          </p>
         </div>
       </div>
-    </div>
+    </form>
+  </div>
   );
 }
